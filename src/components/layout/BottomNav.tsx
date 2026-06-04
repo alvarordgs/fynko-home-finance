@@ -22,7 +22,7 @@ export function BottomNav() {
           return (
             <Link
               key={it.to}
-              to={it.to}
+              to={it.to as any}
               className={cn(
                 "flex flex-1 flex-col items-center gap-1 rounded-lg px-2 py-1.5 text-[11px] transition-colors",
                 active ? "text-primary" : "text-muted-foreground hover:text-foreground",
@@ -53,7 +53,7 @@ export function SideNav() {
           return (
             <Link
               key={it.to}
-              to={it.to}
+              to={it.to as any}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
                 active ? "bg-accent text-accent-foreground font-medium" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
