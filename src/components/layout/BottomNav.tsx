@@ -2,13 +2,14 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { LayoutDashboard, ArrowLeftRight, CalendarClock, Target, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const items = [
+type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean };
+const items: NavItem[] = [
   { to: "/app", label: "Início", icon: LayoutDashboard, exact: true },
   { to: "/app/transactions", label: "Movimentos", icon: ArrowLeftRight },
   { to: "/app/bills", label: "Contas", icon: CalendarClock },
   { to: "/app/goals", label: "Metas", icon: Target },
   { to: "/app/settings", label: "Ajustes", icon: Settings },
-] as const;
+];
 
 export function BottomNav() {
   const { pathname } = useLocation();
