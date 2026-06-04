@@ -37,7 +37,7 @@ function SettingsPage() {
   const [amount, setAmount] = useState("");
   const settleMut = useMutation({
     mutationFn: () => settle({ data: {
-      to_user_id: other.user_id,
+      to_user_id: other!.user_id,
       amount: parseAmount(amount),
       occurred_on: new Date().toISOString().slice(0, 10),
     } }),
