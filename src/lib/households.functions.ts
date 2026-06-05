@@ -47,6 +47,14 @@ export const createHousehold = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("household_id")
+      .eq("id", userId)
+      .maybeSingle();
+    if (profileError) throw new Error(profileError.message);
+    if (profile?.household_id) return { household: { id: profile.household_id } };
+
     const { data: code } = await supabaseAdmin.rpc("gen_invite_code");
     const inviteCode = (code as unknown as string) ?? Math.random().toString(36).slice(2, 10).toUpperCase();
 
@@ -62,7 +70,8 @@ export const createHousehold = createServerFn({ method: "POST" })
       .insert({ household_id: hh.id, user_id: userId, role: "owner" });
     if (mErr) throw new Error(mErr.message);
 
-    await supabase.from("profiles").update({ household_id: hh.id }).eq("id", userId);
+    const { error: updateError } = await supabase.from("profiles").update({ household_id: hh.id }).eq("id", userId);
+    if (updateError) throw new Error(updateError.message);
     await supabaseAdmin.rpc("seed_default_categories", { _household: hh.id });
 
     return { household: hh };
