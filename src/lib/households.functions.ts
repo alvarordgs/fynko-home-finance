@@ -44,8 +44,16 @@ export const createHousehold = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ name: z.string().min(1).max(80) }).parse(d))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from("profiles")
+      .select("household_id")
+      .eq("id", userId)
+      .maybeSingle();
+    if (profileError) throw new Error(profileError.message);
+    if (profile?.household_id) return { household: { id: profile.household_id } };
 
     const { data: code } = await supabaseAdmin.rpc("gen_invite_code");
     const inviteCode = (code as unknown as string) ?? Math.random().toString(36).slice(2, 10).toUpperCase();
@@ -57,12 +65,13 @@ export const createHousehold = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
-    const { error: mErr } = await supabase
+    const { error: mErr } = await supabaseAdmin
       .from("household_members")
       .insert({ household_id: hh.id, user_id: userId, role: "owner" });
     if (mErr) throw new Error(mErr.message);
 
-    await supabase.from("profiles").update({ household_id: hh.id }).eq("id", userId);
+    const { error: updateError } = await supabaseAdmin.from("profiles").update({ household_id: hh.id }).eq("id", userId);
+    if (updateError) throw new Error(updateError.message);
     await supabaseAdmin.rpc("seed_default_categories", { _household: hh.id });
 
     return { household: hh };
