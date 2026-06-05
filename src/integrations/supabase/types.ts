@@ -426,11 +426,6 @@ export type Database = {
     Functions: {
       current_household: { Args: never; Returns: string }
       gen_invite_code: { Args: never; Returns: string }
-      household_has_no_members: {
-        Args: { _household: string }
-        Returns: boolean
-      }
-      is_household_creator: { Args: { _household: string }; Returns: boolean }
       is_household_member: { Args: { _household: string }; Returns: boolean }
       seed_default_categories: {
         Args: { _household: string }
