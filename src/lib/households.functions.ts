@@ -58,7 +58,7 @@ export const createHousehold = createServerFn({ method: "POST" })
     const { data: code } = await supabaseAdmin.rpc("gen_invite_code");
     const inviteCode = (code as unknown as string) ?? Math.random().toString(36).slice(2, 10).toUpperCase();
 
-    const { data: hh, error } = await supabase
+    const { data: hh, error } = await supabaseAdmin
       .from("households")
       .insert({ name: data.name, invite_code: inviteCode, created_by: userId })
       .select()
