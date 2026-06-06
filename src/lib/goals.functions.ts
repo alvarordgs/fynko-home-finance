@@ -56,6 +56,31 @@ export const updateGoalProgress = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const updateGoal = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      id: z.string().uuid(),
+      name: z.string().min(1).max(80),
+      target_amount: z.number().positive(),
+      current_amount: z.number().min(0),
+      deadline: z.string().nullable().optional(),
+      note: z.string().max(500).nullable().optional(),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { error } = await supabase.from("goals").update({
+      name: data.name,
+      target_amount: data.target_amount,
+      current_amount: data.current_amount,
+      deadline: data.deadline ?? null,
+      note: data.note ?? null,
+    }).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 export const deleteGoal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
