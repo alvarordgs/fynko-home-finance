@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { listBills, createBill, payBill, deleteBill } from "@/lib/bills.functions";
+import { listBills, createBill, updateBill, payBill, deleteBill } from "@/lib/bills.functions";
 import { listCategories } from "@/lib/categories.functions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,8 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, CheckCircle2, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { Plus, CheckCircle2, Trash2, Pencil } from "lucide-react";
+import { useEffect, useState } from "react";
 import { brl, fmtDate, parseAmount } from "@/lib/format";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -23,6 +23,7 @@ function BillsPage() {
   const fetchBills = useServerFn(listBills);
   const qc = useQueryClient();
   const { data: bills = [], isLoading } = useQuery({ queryKey: ["bills"], queryFn: () => fetchBills() });
+  const [editing, setEditing] = useState<any | null>(null);
 
   const pay = useServerFn(payBill);
   const del = useServerFn(deleteBill);
@@ -40,7 +41,7 @@ function BillsPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">Contas</h1>
-        <NewBillSheet />
+        <BillSheet />
       </div>
 
       <Card>
@@ -64,10 +65,13 @@ function BillsPage() {
                     </div>
                   </div>
                   <div className="text-sm font-semibold tabular-nums">{brl(b.amount)}</div>
-                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => payMut.mutate(b.id)}>
+                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => payMut.mutate(b.id)} aria-label="Pagar">
                     <CheckCircle2 className="h-4 w-4 text-success" />
                   </Button>
-                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { if (confirm("Remover?")) delMut.mutate(b.id); }}>
+                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setEditing(b)} aria-label="Editar">
+                    <Pencil className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { if (confirm("Remover?")) delMut.mutate(b.id); }} aria-label="Remover">
                     <Trash2 className="h-4 w-4 text-muted-foreground" />
                   </Button>
                 </div>
@@ -76,12 +80,30 @@ function BillsPage() {
           )}
         </CardContent>
       </Card>
+
+      <BillSheet
+        editing={editing}
+        open={!!editing}
+        onOpenChange={(o) => { if (!o) setEditing(null); }}
+      />
     </div>
   );
 }
 
-function NewBillSheet() {
-  const [open, setOpen] = useState(false);
+function BillSheet({
+  editing,
+  open: openProp,
+  onOpenChange,
+}: {
+  editing?: any | null;
+  open?: boolean;
+  onOpenChange?: (o: boolean) => void;
+}) {
+  const isControlled = openProp !== undefined;
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = isControlled ? openProp : internalOpen;
+  const setOpen = (o: boolean) => { if (isControlled) onOpenChange?.(o); else setInternalOpen(o); };
+
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [categoryId, setCategoryId] = useState<string | null>(null);
@@ -93,35 +115,60 @@ function NewBillSheet() {
     return d.toISOString().slice(0, 10);
   });
 
+  useEffect(() => {
+    if (!open) return;
+    if (editing) {
+      setDescription(editing.description ?? "");
+      setAmount(String(editing.amount).replace(".", ","));
+      setCategoryId(editing.category?.id ?? editing.category_id ?? null);
+      setFrequency(editing.frequency);
+      setDay(editing.due_day);
+      setNextDue(editing.next_due_on);
+    } else {
+      setDescription(""); setAmount(""); setCategoryId(null);
+      setFrequency("monthly"); setDay(10);
+      const d = new Date(); d.setDate(10);
+      if (d < new Date()) d.setMonth(d.getMonth() + 1);
+      setNextDue(d.toISOString().slice(0, 10));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, editing?.id]);
+
   const qc = useQueryClient();
   const fetchCats = useServerFn(listCategories);
   const { data: cats = [] } = useQuery({ queryKey: ["categories"], queryFn: () => fetchCats(), enabled: open });
   const create = useServerFn(createBill);
+  const update = useServerFn(updateBill);
   const mut = useMutation({
-    mutationFn: () => create({
-      data: {
+    mutationFn: () => {
+      const payload = {
         description,
         amount: parseAmount(amount),
         category_id: categoryId,
         frequency,
         due_day: day,
         next_due_on: nextDue,
-      },
-    }),
+      };
+      if (editing) return update({ data: { id: editing.id, ...payload } });
+      return create({ data: payload });
+    },
     onSuccess: () => {
-      toast.success("Conta cadastrada"); qc.invalidateQueries(); setOpen(false);
-      setDescription(""); setAmount(""); setCategoryId(null);
+      toast.success(editing ? "Atualizada" : "Conta cadastrada");
+      qc.invalidateQueries();
+      setOpen(false);
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button size="sm"><Plus className="mr-1 h-4 w-4" />Nova</Button>
-      </SheetTrigger>
+      {!isControlled && (
+        <SheetTrigger asChild>
+          <Button size="sm"><Plus className="mr-1 h-4 w-4" />Nova</Button>
+        </SheetTrigger>
+      )}
       <SheetContent side="bottom" className="max-h-[92vh] overflow-y-auto rounded-t-2xl">
-        <SheetHeader className="text-left"><SheetTitle>Nova conta recorrente</SheetTitle></SheetHeader>
+        <SheetHeader className="text-left"><SheetTitle>{editing ? "Editar conta" : "Nova conta recorrente"}</SheetTitle></SheetHeader>
         <div className="mt-4 space-y-4">
           <div><Label>Descrição</Label><Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Ex: Aluguel" /></div>
           <div><Label>Valor</Label><Input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0,00" /></div>
@@ -152,7 +199,9 @@ function NewBillSheet() {
             <div><Label>Dia</Label><Input type="number" min={1} max={31} value={day} onChange={(e) => setDay(Number(e.target.value) || 1)} /></div>
           </div>
           <div><Label>Próximo vencimento</Label><Input type="date" value={nextDue} onChange={(e) => setNextDue(e.target.value)} /></div>
-          <Button className="w-full h-12" disabled={mut.isPending || !description || !amount} onClick={() => mut.mutate()}>Salvar</Button>
+          <Button className="w-full h-12" disabled={mut.isPending || !description || !amount} onClick={() => mut.mutate()}>
+            {editing ? "Salvar alterações" : "Salvar"}
+          </Button>
         </div>
       </SheetContent>
     </Sheet>
