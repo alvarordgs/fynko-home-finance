@@ -91,7 +91,7 @@ export function NewTransactionSheet({
 
   const create = useServerFn(createTransaction);
   const update = useServerFn(updateTransaction);
-  const mut = useMutation({
+  const mut = useMutation<any>({
     mutationFn: () => {
       const a = parseAmount(amount);
       if (a <= 0) throw new Error("Valor inválido");
