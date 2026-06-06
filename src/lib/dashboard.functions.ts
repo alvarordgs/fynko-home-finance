@@ -60,23 +60,46 @@ export const getDashboard = createServerFn({ method: "GET" })
       .eq("household_id", hh);
 
     // Upcoming bills
-    const { data: bills } = await supabase
+    const { data: billsRaw } = await supabase
       .from("recurring_bills")
-      .select("id, description, amount, next_due_on, is_active")
+      .select("id, description, amount, next_due_on, is_active, frequency")
       .eq("household_id", hh)
       .eq("is_active", true)
       .order("next_due_on", { ascending: true })
-      .limit(10);
+      .limit(20);
+
+    // Mark bill as paid if there's a matching expense transaction in the current cycle window
+    function cycleStart(nextDue: string, freq: string): string {
+      const d = new Date(nextDue + "T00:00:00");
+      if (freq === "weekly") d.setDate(d.getDate() - 7);
+      else if (freq === "biweekly") d.setDate(d.getDate() - 14);
+      else if (freq === "yearly") d.setFullYear(d.getFullYear() - 1);
+      else d.setMonth(d.getMonth() - 1);
+      return d.toISOString().slice(0, 10);
+    }
+    const norm = (s: string) => s.trim().toLowerCase();
+    const bills = (billsRaw ?? []).map((b: any) => {
+      const start = cycleStart(b.next_due_on, b.frequency);
+      const paid = (allTx ?? []).some(
+        (t) =>
+          t.kind === "expense" &&
+          norm(t.description ?? "") === norm(b.description ?? "") &&
+          t.occurred_on >= start &&
+          t.occurred_on <= b.next_due_on,
+      );
+      return { ...b, paid };
+    });
+    const unpaidBills = bills.filter((b: any) => !b.paid);
 
     // ---------- Calcs ----------
     const incomeTotal = (allTx ?? []).filter((t) => t.kind === "income").reduce((a, t) => a + Number(t.amount), 0);
     const expenseTotal = (allTx ?? []).filter((t) => t.kind === "expense").reduce((a, t) => a + Number(t.amount), 0);
     const currentBalance = incomeTotal - expenseTotal;
 
-    // Pending bills in next 30 days
-    const pendingTotal = (bills ?? [])
-      .filter((b) => b.next_due_on <= next30)
-      .reduce((a, b) => a + Number(b.amount), 0);
+    // Pending bills in next 30 days (excluding ones already paid this cycle)
+    const pendingTotal = unpaidBills
+      .filter((b: any) => b.next_due_on <= next30)
+      .reduce((a: number, b: any) => a + Number(b.amount), 0);
 
     // "A receber" — simplificado: nenhum até futuras receitas recorrentes; placeholder 0
     const receivableTotal = 0;
