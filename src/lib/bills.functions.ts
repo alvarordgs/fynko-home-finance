@@ -96,6 +96,35 @@ export const payBill = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const updateBill = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      id: z.string().uuid(),
+      description: z.string().min(1).max(80),
+      amount: z.number().positive(),
+      category_id: z.string().uuid().nullable().optional(),
+      frequency: z.enum(["weekly", "biweekly", "monthly", "yearly"]),
+      due_day: z.number().int().min(1).max(31),
+      next_due_on: z.string(),
+      is_active: z.boolean().optional(),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { error } = await supabase.from("recurring_bills").update({
+      description: data.description,
+      amount: data.amount,
+      category_id: data.category_id ?? null,
+      frequency: data.frequency,
+      due_day: data.due_day,
+      next_due_on: data.next_due_on,
+      ...(data.is_active !== undefined ? { is_active: data.is_active } : {}),
+    }).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 export const deleteBill = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))

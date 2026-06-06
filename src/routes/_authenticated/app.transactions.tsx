@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 import { brl, fmtDate } from "@/lib/format";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Pencil } from "lucide-react";
 import { NewTransactionSheet } from "@/components/transactions/NewTransactionSheet";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,7 @@ export const Route = createFileRoute("/_authenticated/app/transactions")({
 function TxPage() {
   const { members, profile } = Route.useRouteContext() as any;
   const [kind, setKind] = useState<"all" | "expense" | "income">("all");
+  const [editing, setEditing] = useState<any | null>(null);
   const fetchTx = useServerFn(listTransactions);
   const qc = useQueryClient();
   const { data: rows = [], isLoading } = useQuery({
@@ -79,8 +80,18 @@ function TxPage() {
                 <Button
                   size="icon"
                   variant="ghost"
-                  className="h-8 w-8 opacity-0 group-hover:opacity-100"
+                  className="h-8 w-8 opacity-60 group-hover:opacity-100"
+                  onClick={() => setEditing(t)}
+                  aria-label="Editar"
+                >
+                  <Pencil className="h-4 w-4 text-muted-foreground" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 opacity-60 group-hover:opacity-100"
                   onClick={() => { if (confirm("Remover?")) delMut.mutate(t.id); }}
+                  aria-label="Remover"
                 >
                   <Trash2 className="h-4 w-4 text-muted-foreground" />
                 </Button>
@@ -89,6 +100,14 @@ function TxPage() {
           )}
         </CardContent>
       </Card>
+
+      <NewTransactionSheet
+        members={members}
+        myUserId={profile.id}
+        editing={editing}
+        open={!!editing}
+        onOpenChange={(o) => { if (!o) setEditing(null); }}
+      />
     </div>
   );
 }
