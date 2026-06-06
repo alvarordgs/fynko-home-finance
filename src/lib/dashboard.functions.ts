@@ -44,7 +44,7 @@ export const getDashboard = createServerFn({ method: "GET" })
     // All transactions
     const { data: allTx } = await supabase
       .from("transactions")
-      .select("id, kind, amount, occurred_on, paid_by_user_id, category_id, category:categories(name,color)")
+      .select("id, kind, amount, description, occurred_on, paid_by_user_id, category_id, category:categories(name,color)")
       .eq("household_id", hh);
 
     // Splits for expense transactions
