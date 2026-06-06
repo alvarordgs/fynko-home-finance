@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -7,34 +7,79 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { listCategories } from "@/lib/categories.functions";
-import { createTransaction } from "@/lib/transactions.functions";
+import { createTransaction, updateTransaction } from "@/lib/transactions.functions";
 import { toast } from "sonner";
-import { Plus, Minus, TrendingUp } from "lucide-react";
+import { Minus, TrendingUp } from "lucide-react";
 import { parseAmount } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 interface Member { user_id: string; display_name: string }
+
+interface EditingTx {
+  id: string;
+  kind: "income" | "expense";
+  amount: number | string;
+  description: string;
+  category_id: string | null;
+  paid_by_user_id: string | null;
+  occurred_on: string;
+  splits?: { user_id: string; share_percent: number }[];
+}
 
 export function NewTransactionSheet({
   members,
   myUserId,
   defaultKind = "expense",
   trigger,
+  editing,
+  open: openProp,
+  onOpenChange,
 }: {
   members: Member[];
   myUserId: string;
   defaultKind?: "income" | "expense";
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
+  editing?: EditingTx | null;
+  open?: boolean;
+  onOpenChange?: (o: boolean) => void;
 }) {
-  const [open, setOpen] = useState(false);
-  const [kind, setKind] = useState<"income" | "expense">(defaultKind);
-  const [amount, setAmount] = useState("");
-  const [description, setDescription] = useState("");
-  const [categoryId, setCategoryId] = useState<string | null>(null);
-  const [paidBy, setPaidBy] = useState<string>(myUserId);
-  const [splitMode, setSplitMode] = useState<"50_50" | "100_me" | "custom">("50_50");
-  const [myShare, setMyShare] = useState(50);
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const isControlled = openProp !== undefined;
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = isControlled ? openProp : internalOpen;
+  const setOpen = (o: boolean) => { if (isControlled) onOpenChange?.(o); else setInternalOpen(o); };
+
+  const [kind, setKind] = useState<"income" | "expense">(editing?.kind ?? defaultKind);
+  const [amount, setAmount] = useState(editing ? String(editing.amount).replace(".", ",") : "");
+  const [description, setDescription] = useState(editing?.description ?? "");
+  const [categoryId, setCategoryId] = useState<string | null>(editing?.category_id ?? null);
+  const [paidBy, setPaidBy] = useState<string>(editing?.paid_by_user_id ?? myUserId);
+  const initialSplit = (() => {
+    if (!editing?.splits || editing.splits.length === 0) return "50_50" as const;
+    const mine = editing.splits.find((s) => s.user_id === myUserId);
+    const mineP = mine?.share_percent ?? 50;
+    if (editing.splits.length === 1 && Number(editing.splits[0].share_percent) === 100) return "100_me" as const;
+    if (Math.abs(mineP - 50) < 0.01) return "50_50" as const;
+    return "custom" as const;
+  })();
+  const [splitMode, setSplitMode] = useState<"50_50" | "100_me" | "custom">(initialSplit);
+  const [myShare, setMyShare] = useState<number>(
+    editing?.splits?.find((s) => s.user_id === myUserId)?.share_percent ?? 50,
+  );
+  const [date, setDate] = useState(editing?.occurred_on ?? new Date().toISOString().slice(0, 10));
+
+  // Reset form when editing target changes / sheet opens for a different record
+  useEffect(() => {
+    if (!open) return;
+    setKind(editing?.kind ?? defaultKind);
+    setAmount(editing ? String(editing.amount).replace(".", ",") : "");
+    setDescription(editing?.description ?? "");
+    setCategoryId(editing?.category_id ?? null);
+    setPaidBy(editing?.paid_by_user_id ?? myUserId);
+    setSplitMode(initialSplit);
+    setMyShare(editing?.splits?.find((s) => s.user_id === myUserId)?.share_percent ?? 50);
+    setDate(editing?.occurred_on ?? new Date().toISOString().slice(0, 10));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, editing?.id]);
 
   const qc = useQueryClient();
   const fetchCategories = useServerFn(listCategories);
@@ -45,6 +90,7 @@ export function NewTransactionSheet({
   });
 
   const create = useServerFn(createTransaction);
+  const update = useServerFn(updateTransaction);
   const mut = useMutation({
     mutationFn: () => {
       const a = parseAmount(amount);
@@ -60,23 +106,23 @@ export function NewTransactionSheet({
                   { user_id: members.find((m) => m.user_id !== myUserId)!.user_id, share_percent: 100 - myShare },
                 ]
           : undefined;
-      return create({
-        data: {
-          kind,
-          amount: a,
-          category_id: categoryId,
-          description,
-          occurred_on: date,
-          paid_by_user_id: kind === "expense" ? paidBy : null,
-          splits,
-        },
-      });
+      const payload = {
+        kind,
+        amount: a,
+        category_id: categoryId,
+        description,
+        occurred_on: date,
+        paid_by_user_id: kind === "expense" ? paidBy : null,
+        splits,
+      };
+      if (editing) return update({ data: { id: editing.id, ...payload } });
+      return create({ data: payload });
     },
     onSuccess: () => {
-      toast.success(kind === "expense" ? "Despesa registrada" : "Receita registrada");
+      toast.success(editing ? "Atualizado" : kind === "expense" ? "Despesa registrada" : "Receita registrada");
       qc.invalidateQueries();
       setOpen(false);
-      setAmount(""); setDescription(""); setCategoryId(null);
+      if (!editing) { setAmount(""); setDescription(""); setCategoryId(null); }
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -86,10 +132,10 @@ export function NewTransactionSheet({
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>{trigger}</SheetTrigger>
+      {trigger && <SheetTrigger asChild>{trigger}</SheetTrigger>}
       <SheetContent side="bottom" className="max-h-[92vh] overflow-y-auto rounded-t-2xl">
         <SheetHeader className="text-left">
-          <SheetTitle>Novo movimento</SheetTitle>
+          <SheetTitle>{editing ? "Editar movimento" : "Novo movimento"}</SheetTitle>
         </SheetHeader>
 
         <div className="mt-4 space-y-5">
@@ -205,7 +251,7 @@ export function NewTransactionSheet({
           </div>
 
           <Button className="w-full h-12 text-base" disabled={mut.isPending || !amount} onClick={() => mut.mutate()}>
-            Salvar
+            {editing ? "Salvar alterações" : "Salvar"}
           </Button>
         </div>
       </SheetContent>
