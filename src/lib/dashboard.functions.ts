@@ -167,7 +167,7 @@ export const getDashboard = createServerFn({ method: "GET" })
     const categoryBreakdown = Object.values(byCategory).sort((a, b) => b.total - a.total);
 
     // Upcoming list with days remaining
-    const upcoming = (bills ?? []).slice(0, 5).map((b) => {
+    const upcoming = unpaidBills.slice(0, 5).map((b: any) => {
       const due = new Date(b.next_due_on + "T00:00:00");
       const days = Math.round((due.getTime() - new Date(today + "T00:00:00").getTime()) / 86400000);
       return { id: b.id, description: b.description, amount: Number(b.amount), next_due_on: b.next_due_on, days };
