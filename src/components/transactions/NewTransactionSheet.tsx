@@ -2,14 +2,12 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { PillInput, PillButton, PillLabel } from "@/components/ui/pill";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { listCategories } from "@/lib/categories.functions";
 import { createTransaction, updateTransaction } from "@/lib/transactions.functions";
 import { toast } from "sonner";
-import { Minus, TrendingUp } from "lucide-react";
+import { Minus, TrendingUp, DollarSign, FileText, Calendar } from "lucide-react";
 import { parseAmount } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
