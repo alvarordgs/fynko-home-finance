@@ -137,29 +137,23 @@ export function NewTransactionSheet({
         </SheetHeader>
 
         <div className="mt-4 space-y-5">
-          <Tabs value={kind} onValueChange={(v) => setKind(v as any)}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="expense"><Minus className="mr-1 h-4 w-4" />Despesa</TabsTrigger>
-              <TabsTrigger value="income"><TrendingUp className="mr-1 h-4 w-4" />Receita</TabsTrigger>
-            </TabsList>
-          </Tabs>
-
           <div>
-            <Label htmlFor="amt" className="text-xs text-muted-foreground">Valor</Label>
-            <Input
+            <PillLabel>Valor</PillLabel>
+            <PillInput
               id="amt"
+              icon={<DollarSign className="h-4 w-4" />}
               inputMode="decimal"
               autoFocus
               placeholder="0,00"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="h-14 text-3xl font-semibold tracking-tight"
+              className="h-14 text-2xl font-semibold tracking-tight"
             />
           </div>
 
           <div>
-            <Label className="text-xs text-muted-foreground">Categoria</Label>
-            <div className="mt-1 flex flex-wrap gap-2">
+            <PillLabel>Categoria</PillLabel>
+            <div className="flex flex-wrap gap-2">
               {filteredCats.map((c: any) => (
                 <button
                   key={c.id}
@@ -168,8 +162,8 @@ export function NewTransactionSheet({
                   className={cn(
                     "rounded-full border px-3 py-1.5 text-sm transition",
                     categoryId === c.id
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "bg-background hover:bg-accent",
+                      ? "border-transparent bg-[var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-glow)]"
+                      : "bg-card/60 hover:bg-accent",
                   )}
                   style={categoryId === c.id ? undefined : { borderColor: c.color + "55" }}
                 >
@@ -180,23 +174,31 @@ export function NewTransactionSheet({
           </div>
 
           <div>
-            <Label htmlFor="desc" className="text-xs text-muted-foreground">Descrição</Label>
-            <Input id="desc" placeholder="Ex: Aluguel" value={description} onChange={(e) => setDescription(e.target.value)} />
+            <PillLabel>Descrição</PillLabel>
+            <PillInput
+              id="desc"
+              icon={<FileText className="h-4 w-4" />}
+              placeholder="Ex: Aluguel"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
           </div>
 
           {kind === "expense" && hasTwoMembers && (
             <>
               <div>
-                <Label className="text-xs text-muted-foreground">Pago por</Label>
-                <div className="mt-1 grid grid-cols-2 gap-2">
+                <PillLabel>Pago por</PillLabel>
+                <div className="grid grid-cols-2 gap-2">
                   {members.map((m) => (
                     <button
                       key={m.user_id}
                       type="button"
                       onClick={() => setPaidBy(m.user_id)}
                       className={cn(
-                        "rounded-lg border px-3 py-2 text-sm transition",
-                        paidBy === m.user_id ? "border-primary bg-primary/10 font-medium" : "hover:bg-accent",
+                        "rounded-full border px-3 py-2.5 text-sm transition",
+                        paidBy === m.user_id
+                          ? "border-transparent bg-[var(--gradient-primary)] text-primary-foreground font-medium shadow-[var(--shadow-glow)]"
+                          : "border-white/10 bg-card/60 hover:bg-accent",
                       )}
                     >
                       {m.display_name}
@@ -206,8 +208,8 @@ export function NewTransactionSheet({
               </div>
 
               <div>
-                <Label className="text-xs text-muted-foreground">Rateio</Label>
-                <div className="mt-1 flex gap-2">
+                <PillLabel>Rateio</PillLabel>
+                <div className="flex gap-2">
                   {[
                     { v: "50_50", l: "50 / 50" },
                     { v: "100_me", l: "100% quem pagou" },
@@ -218,8 +220,10 @@ export function NewTransactionSheet({
                       type="button"
                       onClick={() => setSplitMode(o.v as any)}
                       className={cn(
-                        "flex-1 rounded-lg border px-2 py-2 text-xs transition",
-                        splitMode === o.v ? "border-primary bg-primary/10 font-medium" : "hover:bg-accent",
+                        "flex-1 rounded-full border px-2 py-2 text-xs transition",
+                        splitMode === o.v
+                          ? "border-transparent bg-[var(--gradient-primary)] text-primary-foreground font-medium shadow-[var(--shadow-glow)]"
+                          : "border-white/10 bg-card/60 hover:bg-accent",
                       )}
                     >
                       {o.l}
@@ -228,13 +232,13 @@ export function NewTransactionSheet({
                 </div>
                 {splitMode === "custom" && (
                   <div className="mt-3 flex items-center gap-3">
-                    <Input
+                    <PillInput
                       type="number"
                       min={1}
                       max={99}
                       value={myShare}
                       onChange={(e) => setMyShare(Math.max(1, Math.min(99, Number(e.target.value) || 0)))}
-                      className="w-20"
+                      className="w-24"
                     />
                     <span className="text-xs text-muted-foreground">% meu / {100 - myShare}% do parceiro</span>
                   </div>
@@ -244,13 +248,13 @@ export function NewTransactionSheet({
           )}
 
           <div>
-            <Label htmlFor="dt" className="text-xs text-muted-foreground">Data</Label>
-            <Input id="dt" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+            <PillLabel>Data</PillLabel>
+            <PillInput id="dt" type="date" icon={<Calendar className="h-4 w-4" />} value={date} onChange={(e) => setDate(e.target.value)} />
           </div>
 
-          <Button className="w-full h-12 text-base" disabled={mut.isPending || !amount} onClick={() => mut.mutate()}>
+          <PillButton disabled={mut.isPending || !amount} onClick={() => mut.mutate()}>
             {editing ? "Salvar alterações" : "Salvar"}
-          </Button>
+          </PillButton>
         </div>
       </SheetContent>
     </Sheet>
