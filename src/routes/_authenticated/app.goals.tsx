@@ -93,10 +93,9 @@ function UpdateGoal({ goal, onUpdate }: { goal: any; onUpdate: (v: number) => vo
   const [v, setV] = useState("");
   return (
     <div className="flex items-center gap-2">
-      <Input inputMode="decimal" placeholder="Adicionar ao progresso" value={v} onChange={(e) => setV(e.target.value)} className="h-9" />
-      <Button
-        size="sm"
-        variant="outline"
+      <PillInput icon={<Wallet className="h-4 w-4" />} inputMode="decimal" placeholder="Adicionar ao progresso" value={v} onChange={(e) => setV(e.target.value)} className="h-10" />
+      <PillButton
+        className="h-10 w-auto px-5"
         onClick={() => {
           const add = parseAmount(v);
           if (add <= 0) return;
@@ -105,7 +104,7 @@ function UpdateGoal({ goal, onUpdate }: { goal: any; onUpdate: (v: number) => vo
         }}
       >
         +
-      </Button>
+      </PillButton>
     </div>
   );
 }
