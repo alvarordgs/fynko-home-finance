@@ -85,6 +85,13 @@ export const joinHousehold = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const code = data.inviteCode.trim().toUpperCase();
+
+    const { count: existingMemberships } = await supabaseAdmin
+      .from("household_members")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", userId);
+    if ((existingMemberships ?? 0) > 0) throw new Error("Você já pertence a um lar");
+
     const { data: hh } = await supabaseAdmin
       .from("households")
       .select("id")
