@@ -4,14 +4,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { listGoals, createGoal, updateGoal, updateGoalProgress, deleteGoal } from "@/lib/goals.functions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { PillInput, PillButton, PillLabel } from "@/components/ui/pill";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Progress } from "@/components/ui/progress";
 import { useEffect, useState } from "react";
 import { brl, parseAmount } from "@/lib/format";
 import { toast } from "sonner";
-import { Plus, Trash2, Pencil } from "lucide-react";
+import { Plus, Trash2, Pencil, Target, DollarSign, Calendar, Wallet } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/goals")({
   component: GoalsPage,
@@ -94,10 +93,9 @@ function UpdateGoal({ goal, onUpdate }: { goal: any; onUpdate: (v: number) => vo
   const [v, setV] = useState("");
   return (
     <div className="flex items-center gap-2">
-      <Input inputMode="decimal" placeholder="Adicionar ao progresso" value={v} onChange={(e) => setV(e.target.value)} className="h-9" />
-      <Button
-        size="sm"
-        variant="outline"
+      <PillInput icon={<Wallet className="h-4 w-4" />} inputMode="decimal" placeholder="Adicionar ao progresso" value={v} onChange={(e) => setV(e.target.value)} className="h-10" />
+      <PillButton
+        className="h-10 w-auto px-5"
         onClick={() => {
           const add = parseAmount(v);
           if (add <= 0) return;
@@ -106,7 +104,7 @@ function UpdateGoal({ goal, onUpdate }: { goal: any; onUpdate: (v: number) => vo
         }}
       >
         +
-      </Button>
+      </PillButton>
     </div>
   );
 }
@@ -174,15 +172,15 @@ function GoalSheet({
       <SheetContent side="bottom" className="rounded-t-2xl">
         <SheetHeader className="text-left"><SheetTitle>{editing ? "Editar meta" : "Nova meta"}</SheetTitle></SheetHeader>
         <div className="mt-4 space-y-4">
-          <div><Label>Nome</Label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Reserva de emergência" /></div>
-          <div><Label>Valor alvo</Label><Input inputMode="decimal" value={target} onChange={(e) => setTarget(e.target.value)} placeholder="10000,00" /></div>
+          <div><PillLabel>Nome</PillLabel><PillInput icon={<Target className="h-4 w-4" />} value={name} onChange={(e) => setName(e.target.value)} placeholder="Reserva de emergência" /></div>
+          <div><PillLabel>Valor alvo</PillLabel><PillInput icon={<DollarSign className="h-4 w-4" />} inputMode="decimal" value={target} onChange={(e) => setTarget(e.target.value)} placeholder="10000,00" /></div>
           {editing && (
-            <div><Label>Valor atual</Label><Input inputMode="decimal" value={current} onChange={(e) => setCurrent(e.target.value)} placeholder="0,00" /></div>
+            <div><PillLabel>Valor atual</PillLabel><PillInput icon={<Wallet className="h-4 w-4" />} inputMode="decimal" value={current} onChange={(e) => setCurrent(e.target.value)} placeholder="0,00" /></div>
           )}
-          <div><Label>Prazo (opcional)</Label><Input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} /></div>
-          <Button className="w-full h-12" disabled={mut.isPending || !name || !target} onClick={() => mut.mutate()}>
+          <div><PillLabel>Prazo (opcional)</PillLabel><PillInput icon={<Calendar className="h-4 w-4" />} type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} /></div>
+          <PillButton disabled={mut.isPending || !name || !target} onClick={() => mut.mutate()}>
             {editing ? "Salvar alterações" : "Criar"}
-          </Button>
+          </PillButton>
         </div>
       </SheetContent>
     </Sheet>
