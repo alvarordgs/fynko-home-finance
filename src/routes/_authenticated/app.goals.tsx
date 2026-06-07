@@ -172,15 +172,15 @@ function GoalSheet({
       <SheetContent side="bottom" className="rounded-t-2xl">
         <SheetHeader className="text-left"><SheetTitle>{editing ? "Editar meta" : "Nova meta"}</SheetTitle></SheetHeader>
         <div className="mt-4 space-y-4">
-          <div><Label>Nome</Label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Reserva de emergência" /></div>
-          <div><Label>Valor alvo</Label><Input inputMode="decimal" value={target} onChange={(e) => setTarget(e.target.value)} placeholder="10000,00" /></div>
+          <div><PillLabel>Nome</PillLabel><PillInput icon={<Target className="h-4 w-4" />} value={name} onChange={(e) => setName(e.target.value)} placeholder="Reserva de emergência" /></div>
+          <div><PillLabel>Valor alvo</PillLabel><PillInput icon={<DollarSign className="h-4 w-4" />} inputMode="decimal" value={target} onChange={(e) => setTarget(e.target.value)} placeholder="10000,00" /></div>
           {editing && (
-            <div><Label>Valor atual</Label><Input inputMode="decimal" value={current} onChange={(e) => setCurrent(e.target.value)} placeholder="0,00" /></div>
+            <div><PillLabel>Valor atual</PillLabel><PillInput icon={<Wallet className="h-4 w-4" />} inputMode="decimal" value={current} onChange={(e) => setCurrent(e.target.value)} placeholder="0,00" /></div>
           )}
-          <div><Label>Prazo (opcional)</Label><Input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} /></div>
-          <Button className="w-full h-12" disabled={mut.isPending || !name || !target} onClick={() => mut.mutate()}>
+          <div><PillLabel>Prazo (opcional)</PillLabel><PillInput icon={<Calendar className="h-4 w-4" />} type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} /></div>
+          <PillButton disabled={mut.isPending || !name || !target} onClick={() => mut.mutate()}>
             {editing ? "Salvar alterações" : "Criar"}
-          </Button>
+          </PillButton>
         </div>
       </SheetContent>
     </Sheet>
