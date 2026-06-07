@@ -169,12 +169,12 @@ function BillSheet({
       <SheetContent side="bottom" className="max-h-[92vh] overflow-y-auto rounded-t-2xl">
         <SheetHeader className="text-left"><SheetTitle>{editing ? "Editar conta" : "Nova conta recorrente"}</SheetTitle></SheetHeader>
         <div className="mt-4 space-y-4">
-          <div><Label>Descrição</Label><Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Ex: Aluguel" /></div>
-          <div><Label>Valor</Label><Input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0,00" /></div>
+          <div><PillLabel>Descrição</PillLabel><PillInput icon={<FileText className="h-4 w-4" />} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Ex: Aluguel" /></div>
+          <div><PillLabel>Valor</PillLabel><PillInput icon={<DollarSign className="h-4 w-4" />} inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0,00" /></div>
           <div>
-            <Label>Categoria</Label>
+            <PillLabel>Categoria</PillLabel>
             <Select value={categoryId ?? ""} onValueChange={(v) => setCategoryId(v)}>
-              <SelectTrigger><SelectValue placeholder="Selecionar" /></SelectTrigger>
+              <SelectTrigger className="h-12 rounded-full border-white/10 bg-card/80 px-5"><SelectValue placeholder="Selecionar" /></SelectTrigger>
               <SelectContent>
                 {cats.filter((c: any) => c.kind === "expense").map((c: any) => (
                   <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
@@ -184,9 +184,9 @@ function BillSheet({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Frequência</Label>
+              <PillLabel>Frequência</PillLabel>
               <Select value={frequency} onValueChange={(v) => setFrequency(v as any)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-12 rounded-full border-white/10 bg-card/80 px-5"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="weekly">Semanal</SelectItem>
                   <SelectItem value="biweekly">Quinzenal</SelectItem>
@@ -195,12 +195,12 @@ function BillSheet({
                 </SelectContent>
               </Select>
             </div>
-            <div><Label>Dia</Label><Input type="number" min={1} max={31} value={day} onChange={(e) => setDay(Number(e.target.value) || 1)} /></div>
+            <div><PillLabel>Dia</PillLabel><PillInput icon={<Hash className="h-4 w-4" />} type="number" min={1} max={31} value={day} onChange={(e) => setDay(Number(e.target.value) || 1)} /></div>
           </div>
-          <div><Label>Próximo vencimento</Label><Input type="date" value={nextDue} onChange={(e) => setNextDue(e.target.value)} /></div>
-          <Button className="w-full h-12" disabled={mut.isPending || !description || !amount} onClick={() => mut.mutate()}>
+          <div><PillLabel>Próximo vencimento</PillLabel><PillInput icon={<Calendar className="h-4 w-4" />} type="date" value={nextDue} onChange={(e) => setNextDue(e.target.value)} /></div>
+          <PillButton disabled={mut.isPending || !description || !amount} onClick={() => mut.mutate()}>
             {editing ? "Salvar alterações" : "Salvar"}
-          </Button>
+          </PillButton>
         </div>
       </SheetContent>
     </Sheet>
