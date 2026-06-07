@@ -137,6 +137,17 @@ export function NewTransactionSheet({
         </SheetHeader>
 
         <div className="mt-4 space-y-5">
+          <Tabs value={kind} onValueChange={(v) => setKind(v as any)}>
+            <TabsList className="grid w-full grid-cols-2 rounded-full bg-card/60 p-1">
+              <TabsTrigger value="expense" className="rounded-full data-[state=active]:bg-[var(--gradient-primary)] data-[state=active]:text-primary-foreground data-[state=active]:shadow-[var(--shadow-glow)]">
+                <Minus className="mr-1 h-4 w-4" />Despesa
+              </TabsTrigger>
+              <TabsTrigger value="income" className="rounded-full data-[state=active]:bg-[var(--gradient-primary)] data-[state=active]:text-primary-foreground data-[state=active]:shadow-[var(--shadow-glow)]">
+                <TrendingUp className="mr-1 h-4 w-4" />Receita
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+
           <div>
             <PillLabel>Valor</PillLabel>
             <PillInput
