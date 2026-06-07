@@ -4,14 +4,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { listGoals, createGoal, updateGoal, updateGoalProgress, deleteGoal } from "@/lib/goals.functions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { PillInput, PillButton, PillLabel } from "@/components/ui/pill";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Progress } from "@/components/ui/progress";
 import { useEffect, useState } from "react";
 import { brl, parseAmount } from "@/lib/format";
 import { toast } from "sonner";
-import { Plus, Trash2, Pencil } from "lucide-react";
+import { Plus, Trash2, Pencil, Target, DollarSign, Calendar, Wallet } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/goals")({
   component: GoalsPage,
