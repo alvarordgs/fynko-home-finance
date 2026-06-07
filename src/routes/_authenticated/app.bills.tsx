@@ -5,11 +5,10 @@ import { listBills, createBill, updateBill, payBill, deleteBill } from "@/lib/bi
 import { listCategories } from "@/lib/categories.functions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { PillInput, PillButton, PillLabel } from "@/components/ui/pill";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, CheckCircle2, Trash2, Pencil } from "lucide-react";
+import { Plus, CheckCircle2, Trash2, Pencil, FileText, DollarSign, Calendar, Hash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { brl, fmtDate, parseAmount } from "@/lib/format";
 import { toast } from "sonner";
