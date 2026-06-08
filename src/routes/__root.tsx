@@ -65,7 +65,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: "Fynko — Finanças para casais" },
       { name: "description", content: "Fynko ajuda casais a administrar finanças juntos: despesas compartilhadas, metas e quanto dinheiro realmente sobra." },
-      { name: "theme-color", content: "#6366F1" },
+      { name: "theme-color", content: "#0A0A0B" },
       { property: "og:title", content: "Fynko — Finanças para casais" },
       { property: "og:description", content: "Fynko ajuda casais a administrar finanças juntos: despesas compartilhadas, metas e quanto dinheiro realmente sobra." },
       { property: "og:type", content: "website" },
