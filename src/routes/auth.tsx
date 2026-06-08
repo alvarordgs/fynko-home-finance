@@ -3,9 +3,10 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Wallet, User, Lock, Mail, ArrowLeft } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -13,6 +14,26 @@ export const Route = createFileRoute("/auth")({
 });
 
 type Mode = "welcome" | "login" | "signup";
+
+function GoogleIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.24 1.4-1.66 4.1-5.5 4.1-3.3 0-6-2.74-6-6.1S8.7 6 12 6c1.88 0 3.14.8 3.86 1.5L18.6 4.9C16.86 3.3 14.66 2.3 12 2.3 6.86 2.3 2.7 6.46 2.7 11.6c0 5.14 4.16 9.3 9.3 9.3 5.36 0 8.92-3.78 8.92-9.1 0-.62-.06-1.08-.14-1.6H12z"/>
+      <path fill="#34A853" d="M3.6 7.5l3.2 2.36C7.6 7.86 9.62 6.4 12 6.4c1.7 0 2.86.74 3.5 1.36l2.62-2.56C16.5 3.6 14.4 2.6 12 2.6 8.1 2.6 4.78 4.84 3.6 7.5z" opacity="0"/>
+      <path fill="#FBBC05" d="M0 0h24v24H0z" opacity="0"/>
+    </svg>
+  );
+}
+
+function FynkoMark() {
+  return (
+    <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border-strong bg-card">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M6 4h12v3H10v4h7v3h-7v6H6V4z" fill="#A78BFA"/>
+      </svg>
+    </div>
+  );
+}
 
 function AuthPage() {
   const navigate = useNavigate();
@@ -63,191 +84,176 @@ function AuthPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 py-8">
-      {/* Ambient gradient halos */}
-      <div className="pointer-events-none absolute -top-32 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-primary/30 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-[-180px] right-[-120px] h-[420px] w-[420px] rounded-full bg-accent/40 blur-3xl" />
+    <div className="flex min-h-dvh items-center justify-center bg-background px-5 py-10">
+      <div className="w-full max-w-[400px]">
+        {/* Brand */}
+        <div className="mb-10 flex flex-col items-center text-center">
+          <FynkoMark />
+          <h1 className="mt-5 text-[28px] font-semibold tracking-tight text-foreground">Fynko</h1>
+          <p className="mt-1.5 text-sm text-muted-foreground">Finanças para casais</p>
+        </div>
 
-      <div className="relative w-full max-w-sm">
-        <div className="overflow-hidden rounded-[2.25rem] border border-white/10 bg-card/80 shadow-2xl shadow-primary/20 backdrop-blur-xl">
-          {/* Top hero panel */}
-          <div className="relative px-8 pt-10 pb-20">
-            <div className="absolute inset-0 -z-10 bg-[radial-gradient(120%_80%_at_50%_0%,oklch(0.32_0.12_295)_0%,oklch(0.16_0.014_285)_70%)]" />
-            <div className="flex flex-col items-center gap-3 text-center">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-glow)]">
-                <Wallet className="h-7 w-7" />
+        {mode === "welcome" && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+                Organizem suas finanças juntos
+              </h2>
+              <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
+                Acompanhem receitas, despesas e metas em um único lugar.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <Button onClick={() => setMode("login")} className="h-12 w-full rounded-xl bg-primary text-base font-medium text-primary-foreground hover:bg-primary/90">
+                Entrar
+              </Button>
+              <Button
+                onClick={() => setMode("signup")}
+                variant="outline"
+                className="h-12 w-full rounded-xl border-border-strong bg-transparent text-base font-medium text-foreground hover:bg-card hover:text-foreground"
+              >
+                Criar conta
+              </Button>
+
+              <div className="relative py-2">
+                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border" /></div>
+                <div className="relative flex justify-center"><span className="bg-background px-3 text-xs uppercase tracking-wider text-muted-foreground">ou</span></div>
               </div>
-              <div>
-                <h1 className="text-2xl font-semibold tracking-tight">Fynko</h1>
-                <p className="mt-1 text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                  Finanças do casal
-                </p>
-              </div>
+
+              <Button
+                onClick={handleGoogle}
+                disabled={loading}
+                variant="outline"
+                className="h-12 w-full gap-2.5 rounded-xl border-border-strong bg-transparent text-base font-medium text-foreground hover:bg-card hover:text-foreground"
+              >
+                <GoogleIcon className="h-4 w-4" />
+                Continuar com Google
+              </Button>
             </div>
           </div>
+        )}
 
-          {/* Curved lower sheet */}
-          <div className="relative -mt-12 rounded-t-[2rem] bg-[var(--gradient-primary)] px-7 pt-7 pb-8 shadow-[0_-20px_40px_-20px_rgba(0,0,0,0.5)]">
-            {mode === "welcome" && (
-              <div className="space-y-4 py-4 text-center text-primary-foreground">
-                <h2 className="text-xl font-semibold">Bem-vindo</h2>
-                <p className="text-sm opacity-80">
-                  Acompanhe receitas, despesas e metas a dois — em um só lugar.
-                </p>
-                <div className="space-y-3 pt-3">
-                  <PillButton onClick={() => setMode("login")}>Entrar</PillButton>
-                  <PillButton variant="outline" onClick={() => setMode("signup")}>
-                    Criar conta
-                  </PillButton>
-                </div>
-                <div className="pt-4">
-                  <button
-                    type="button"
-                    onClick={handleGoogle}
-                    disabled={loading}
-                    className="text-xs font-medium uppercase tracking-wider text-primary-foreground/80 underline-offset-4 hover:underline"
-                  >
-                    Continuar com Google
-                  </button>
-                </div>
+        {mode === "login" && (
+          <FormShell title="Entrar" subtitle="Bem-vindo de volta ao Fynko." onBack={() => setMode("welcome")}>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <Field id="email" label="Email" type="email" autoComplete="email" required value={email} onChange={setEmail} placeholder="voce@email.com" />
+              <Field id="password" label="Senha" type="password" autoComplete="current-password" required value={password} onChange={setPassword} placeholder="Sua senha" />
+
+              <div className="flex justify-end">
+                <button type="button" onClick={handleReset} className="text-xs font-medium text-muted-foreground hover:text-foreground">
+                  Esqueci minha senha
+                </button>
               </div>
-            )}
 
-            {mode === "login" && (
-              <form onSubmit={handleLogin} className="space-y-4">
-                <SheetHeader title="Entrar" onBack={() => setMode("welcome")} />
-                <IconInput
-                  icon={<Mail className="h-4 w-4" />}
-                  type="email"
-                  placeholder="Email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-                <IconInput
-                  icon={<Lock className="h-4 w-4" />}
-                  type="password"
-                  placeholder="Senha"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={handleReset}
-                    className="text-xs text-primary-foreground/80 hover:text-primary-foreground"
-                  >
-                    Esqueci minha senha
-                  </button>
-                </div>
-                <PillButton type="submit" disabled={loading}>Entrar</PillButton>
-                <PillButton type="button" variant="outline" onClick={handleGoogle} disabled={loading}>
-                  Continuar com Google
-                </PillButton>
-                <FooterSwap
-                  label="Não tem conta?"
-                  action="Cadastre-se"
-                  onClick={() => setMode("signup")}
-                />
-              </form>
-            )}
+              <Button type="submit" disabled={loading} className="h-12 w-full rounded-xl bg-primary text-base font-medium text-primary-foreground hover:bg-primary/90">
+                {loading ? "Entrando..." : "Entrar"}
+              </Button>
+              <Button
+                type="button"
+                onClick={handleGoogle}
+                disabled={loading}
+                variant="outline"
+                className="h-12 w-full gap-2.5 rounded-xl border-border-strong bg-transparent text-base font-medium text-foreground hover:bg-card hover:text-foreground"
+              >
+                <GoogleIcon className="h-4 w-4" />
+                Continuar com Google
+              </Button>
+            </form>
+            <FooterSwap label="Não tem conta?" action="Cadastre-se" onClick={() => setMode("signup")} />
+          </FormShell>
+        )}
 
-            {mode === "signup" && (
-              <form onSubmit={handleSignup} className="space-y-4">
-                <SheetHeader title="Criar conta" onBack={() => setMode("welcome")} />
-                <IconInput
-                  icon={<User className="h-4 w-4" />}
-                  type="text"
-                  placeholder="Seu nome"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-                <IconInput
-                  icon={<Mail className="h-4 w-4" />}
-                  type="email"
-                  placeholder="Email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-                <IconInput
-                  icon={<Lock className="h-4 w-4" />}
-                  type="password"
-                  placeholder="Senha (mín. 6)"
-                  required
-                  minLength={6}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <PillButton type="submit" disabled={loading}>Criar conta</PillButton>
-                <PillButton type="button" variant="outline" onClick={handleGoogle} disabled={loading}>
-                  Continuar com Google
-                </PillButton>
-                <FooterSwap
-                  label="Já tem conta?"
-                  action="Entrar"
-                  onClick={() => setMode("login")}
-                />
-              </form>
-            )}
-          </div>
+        {mode === "signup" && (
+          <FormShell title="Criar conta" subtitle="Comece a organizar suas finanças em minutos." onBack={() => setMode("welcome")}>
+            <form onSubmit={handleSignup} className="space-y-4">
+              <Field id="name" label="Nome" type="text" autoComplete="name" required value={name} onChange={setName} placeholder="Seu nome" />
+              <Field id="email" label="Email" type="email" autoComplete="email" required value={email} onChange={setEmail} placeholder="voce@email.com" />
+              <Field id="password" label="Senha" type="password" autoComplete="new-password" required minLength={6} value={password} onChange={setPassword} placeholder="Mínimo 6 caracteres" />
+
+              <Button type="submit" disabled={loading} className="mt-2 h-12 w-full rounded-xl bg-primary text-base font-medium text-primary-foreground hover:bg-primary/90">
+                {loading ? "Criando..." : "Criar conta"}
+              </Button>
+              <Button
+                type="button"
+                onClick={handleGoogle}
+                disabled={loading}
+                variant="outline"
+                className="h-12 w-full gap-2.5 rounded-xl border-border-strong bg-transparent text-base font-medium text-foreground hover:bg-card hover:text-foreground"
+              >
+                <GoogleIcon className="h-4 w-4" />
+                Continuar com Google
+              </Button>
+            </form>
+            <FooterSwap label="Já tem conta?" action="Entrar" onClick={() => setMode("login")} />
+          </FormShell>
+        )}
+
+        <p className="mt-10 text-center text-xs text-muted-foreground/70">
+          Ao continuar, você concorda com os Termos e a Política de Privacidade.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function FormShell({
+  title,
+  subtitle,
+  onBack,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  onBack: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-start gap-3">
+        <button
+          type="button"
+          onClick={onBack}
+          aria-label="Voltar"
+          className="-ml-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition hover:border-border-strong hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </button>
+        <div className="flex-1 pt-0.5">
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">{title}</h2>
+          {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
         </div>
       </div>
+      {children}
     </div>
   );
 }
 
-function SheetHeader({ title, onBack }: { title: string; onBack: () => void }) {
-  return (
-    <div className="mb-2 flex items-center gap-3 text-primary-foreground">
-      <button
-        type="button"
-        onClick={onBack}
-        className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 transition hover:bg-white/25"
-        aria-label="Voltar"
-      >
-        <ArrowLeft className="h-4 w-4" />
-      </button>
-      <h2 className="text-lg font-semibold">{title}</h2>
-    </div>
-  );
-}
-
-function IconInput({
-  icon,
+function Field({
+  id,
+  label,
+  value,
+  onChange,
   ...props
-}: React.InputHTMLAttributes<HTMLInputElement> & { icon: React.ReactNode }) {
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange">) {
   return (
-    <div className="relative">
-      <input
+    <div className="space-y-1.5">
+      <Label htmlFor={id} className="text-xs font-medium text-muted-foreground">
+        {label}
+      </Label>
+      <Input
+        id={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-12 rounded-xl border-border bg-surface px-4 text-sm text-foreground placeholder:text-muted-foreground/60 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30"
         {...props}
-        className="h-12 w-full rounded-full border border-white/15 bg-card/85 px-5 pr-14 text-sm text-foreground placeholder:text-muted-foreground shadow-inner shadow-black/30 outline-none transition focus:border-white/40 focus:ring-2 focus:ring-white/30"
       />
-      <div className="absolute right-1.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-[var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-glow)]">
-        {icon}
-      </div>
     </div>
-  );
-}
-
-function PillButton({
-  variant = "solid",
-  className,
-  ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "solid" | "outline" }) {
-  return (
-    <Button
-      {...props}
-      className={cn(
-        "h-12 w-full rounded-full text-sm font-semibold tracking-wide transition active:scale-[0.98]",
-        variant === "solid"
-          ? "bg-card text-foreground shadow-lg shadow-black/30 hover:bg-card/90"
-          : "border border-white/40 bg-white/0 text-primary-foreground hover:bg-white/10",
-        className,
-      )}
-    />
   );
 }
 
@@ -261,13 +267,9 @@ function FooterSwap({
   onClick: () => void;
 }) {
   return (
-    <div className="pt-1 text-center text-sm text-primary-foreground/85">
+    <div className="pt-2 text-center text-sm text-muted-foreground">
       {label}{" "}
-      <button
-        type="button"
-        onClick={onClick}
-        className="font-semibold text-primary-foreground underline-offset-4 hover:underline"
-      >
+      <button type="button" onClick={onClick} className="font-medium text-foreground underline-offset-4 hover:underline">
         {action}
       </button>
     </div>
