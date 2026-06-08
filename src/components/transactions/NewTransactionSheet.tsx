@@ -139,10 +139,10 @@ export function NewTransactionSheet({
         <div className="mt-4 space-y-5">
           <Tabs value={kind} onValueChange={(v) => setKind(v as any)}>
             <TabsList className="grid w-full grid-cols-2 rounded-full bg-card/60 p-1">
-              <TabsTrigger value="expense" className="rounded-full data-[state=active]:bg-[var(--gradient-primary)] data-[state=active]:text-primary-foreground data-[state=active]:shadow-[var(--shadow-glow)]">
+              <TabsTrigger value="expense" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:">
                 <Minus className="mr-1 h-4 w-4" />Despesa
               </TabsTrigger>
-              <TabsTrigger value="income" className="rounded-full data-[state=active]:bg-[var(--gradient-primary)] data-[state=active]:text-primary-foreground data-[state=active]:shadow-[var(--shadow-glow)]">
+              <TabsTrigger value="income" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:">
                 <TrendingUp className="mr-1 h-4 w-4" />Receita
               </TabsTrigger>
             </TabsList>
@@ -173,7 +173,7 @@ export function NewTransactionSheet({
                   className={cn(
                     "rounded-full border px-3 py-1.5 text-sm transition",
                     categoryId === c.id
-                      ? "border-transparent bg-[var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-glow)]"
+                      ? "border-transparent bg-primary text-primary-foreground "
                       : "bg-card/60 hover:bg-accent",
                   )}
                   style={categoryId === c.id ? undefined : { borderColor: c.color + "55" }}
@@ -208,7 +208,7 @@ export function NewTransactionSheet({
                       className={cn(
                         "rounded-full border px-3 py-2.5 text-sm transition",
                         paidBy === m.user_id
-                          ? "border-transparent bg-[var(--gradient-primary)] text-primary-foreground font-medium shadow-[var(--shadow-glow)]"
+                          ? "border-transparent bg-primary text-primary-foreground font-medium "
                           : "border-white/10 bg-card/60 hover:bg-accent",
                       )}
                     >
@@ -233,7 +233,7 @@ export function NewTransactionSheet({
                       className={cn(
                         "flex-1 rounded-full border px-2 py-2 text-xs transition",
                         splitMode === o.v
-                          ? "border-transparent bg-[var(--gradient-primary)] text-primary-foreground font-medium shadow-[var(--shadow-glow)]"
+                          ? "border-transparent bg-primary text-primary-foreground font-medium "
                           : "border-white/10 bg-card/60 hover:bg-accent",
                       )}
                     >

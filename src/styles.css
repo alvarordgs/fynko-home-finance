@@ -10,8 +10,12 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -31,6 +35,7 @@
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
@@ -50,64 +55,59 @@
 }
 
 :root {
-  --radius: 1rem;
+  --radius: 0.75rem;
 
-  /* Dark-first palette: black + graphite + violet */
-  --background: oklch(0.14 0.012 285);
-  --foreground: oklch(0.97 0.005 285);
+  /* Fynko — premium dark fintech palette */
+  --background: #0A0A0B;
+  --foreground: #FFFFFF;
 
-  --card: oklch(0.18 0.016 285);
-  --card-foreground: oklch(0.97 0.005 285);
+  --surface: #111113;
+  --card: #1A1A1F;
+  --card-foreground: #FFFFFF;
 
-  --popover: oklch(0.19 0.018 285);
-  --popover-foreground: oklch(0.97 0.005 285);
+  --popover: #1A1A1F;
+  --popover-foreground: #FFFFFF;
 
-  /* Primary: vivid violet */
-  --primary: oklch(0.72 0.19 290);
-  --primary-foreground: oklch(0.99 0.005 285);
+  --primary: #7C3AED;
+  --primary-foreground: #FFFFFF;
 
-  /* Secondary: graphite */
-  --secondary: oklch(0.24 0.018 285);
-  --secondary-foreground: oklch(0.97 0.005 285);
+  --secondary: #1A1A1F;
+  --secondary-foreground: #FFFFFF;
 
-  --muted: oklch(0.24 0.015 285);
-  --muted-foreground: oklch(0.82 0.02 285);
+  --muted: #111113;
+  --muted-foreground: #9CA3AF;
 
-  --accent: oklch(0.34 0.09 295);
-  --accent-foreground: oklch(0.99 0.005 285);
+  --accent: #1A1A1F;
+  --accent-foreground: #FFFFFF;
 
-  --success: oklch(0.78 0.17 150);
-  --success-foreground: oklch(0.1 0.02 150);
+  --success: #22C55E;
+  --success-foreground: #08110B;
 
-  --warning: oklch(0.84 0.16 75);
-  --warning-foreground: oklch(0.15 0.04 75);
+  --warning: #F59E0B;
+  --warning-foreground: #1A1206;
 
-  --destructive: oklch(0.7 0.22 25);
-  --destructive-foreground: oklch(0.99 0 0);
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
 
-  --border: oklch(1 0 0 / 16%);
-  --input: oklch(1 0 0 / 20%);
-  --ring: oklch(0.68 0.21 295);
+  --border: #23232B;
+  --border-strong: #2A2A32;
+  --input: #2A2A32;
+  --ring: #7C3AED;
 
-  --chart-1: oklch(0.68 0.21 295);
-  --chart-2: oklch(0.75 0.18 320);
-  --chart-3: oklch(0.74 0.17 150);
-  --chart-4: oklch(0.8 0.16 75);
-  --chart-5: oklch(0.68 0.22 25);
+  --chart-1: #7C3AED;
+  --chart-2: #8B5CF6;
+  --chart-3: #22C55E;
+  --chart-4: #F59E0B;
+  --chart-5: #EF4444;
 
-  --sidebar: oklch(0.16 0.014 285);
-  --sidebar-foreground: oklch(0.97 0.005 285);
-  --sidebar-primary: oklch(0.68 0.21 295);
-  --sidebar-primary-foreground: oklch(0.99 0.005 285);
-  --sidebar-accent: oklch(0.26 0.04 295);
-  --sidebar-accent-foreground: oklch(0.98 0.01 295);
-  --sidebar-border: oklch(1 0 0 / 8%);
-  --sidebar-ring: oklch(0.68 0.21 295);
-
-  --gradient-primary: linear-gradient(135deg, oklch(0.62 0.20 295), oklch(0.50 0.18 305));
-  --gradient-surface: radial-gradient(1200px 600px at 0% 0%, oklch(0.28 0.09 295 / 0.35), transparent 60%),
-                      radial-gradient(900px 500px at 100% 0%, oklch(0.24 0.08 320 / 0.3), transparent 60%);
-  --shadow-glow: 0 10px 40px -10px oklch(0.68 0.21 295 / 0.4);
+  --sidebar: #0A0A0B;
+  --sidebar-foreground: #D1D5DB;
+  --sidebar-primary: #7C3AED;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #1A1A1F;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #23232B;
+  --sidebar-ring: #7C3AED;
 
   color-scheme: dark;
 }
@@ -117,12 +117,15 @@
   html, body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
   }
   body {
-    font-feature-settings: "cv11","ss01";
+    font-feature-settings: "cv11", "ss01", "ss03";
     -webkit-font-smoothing: antialiased;
-    background-image: var(--gradient-surface);
-    background-attachment: fixed;
+    -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
   }
+  /* Text hierarchy defaults */
+  h1 { letter-spacing: -0.02em; }
+  h2, h3 { letter-spacing: -0.015em; }
 }

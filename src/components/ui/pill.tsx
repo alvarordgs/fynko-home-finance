@@ -2,6 +2,13 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+/**
+ * Minimal, premium form primitives used across the app.
+ * Names kept (PillInput/PillButton/PillLabel) for backwards compatibility,
+ * but the look is now clean and fintech-grade: solid surface inputs,
+ * subtle borders, no gradients or glow.
+ */
+
 export const PillInput = React.forwardRef<
   HTMLInputElement,
   React.InputHTMLAttributes<HTMLInputElement> & { icon?: React.ReactNode }
@@ -12,13 +19,15 @@ export const PillInput = React.forwardRef<
         ref={ref}
         {...props}
         className={cn(
-          "h-12 w-full rounded-full border border-white/10 bg-card/80 px-5 text-sm text-foreground placeholder:text-muted-foreground shadow-inner shadow-black/20 outline-none transition focus:border-primary/60 focus:ring-2 focus:ring-primary/40",
-          icon && "pr-14",
+          "h-12 w-full rounded-xl border border-border bg-surface px-4 text-sm text-foreground",
+          "placeholder:text-muted-foreground/60 outline-none transition",
+          "focus:border-primary focus:ring-2 focus:ring-primary/30",
+          icon && "pl-11",
           className,
         )}
       />
       {icon && (
-        <div className="pointer-events-none absolute right-1.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-[var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-glow)]">
+        <div className="pointer-events-none absolute left-3.5 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center text-muted-foreground [&_svg]:h-4 [&_svg]:w-4">
           {icon}
         </div>
       )}
@@ -38,13 +47,13 @@ export const PillButton = React.forwardRef<HTMLButtonElement, PillButtonProps>(
         ref={ref}
         {...props}
         className={cn(
-          "h-12 w-full rounded-full text-sm font-semibold tracking-wide transition active:scale-[0.98]",
+          "h-12 w-full rounded-xl text-sm font-medium transition",
           pillVariant === "gradient" &&
-            "border-0 bg-[var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-glow)] hover:brightness-110",
+            "border-0 bg-primary text-primary-foreground hover:bg-primary/90",
           pillVariant === "outline" &&
-            "border border-primary/50 bg-transparent text-foreground hover:bg-primary/10",
+            "border border-border-strong bg-transparent text-foreground hover:bg-card hover:text-foreground",
           pillVariant === "ghost" &&
-            "border-0 bg-card/80 text-foreground hover:bg-card",
+            "border-0 bg-transparent text-muted-foreground hover:bg-card hover:text-foreground",
           className,
         )}
       />
@@ -54,7 +63,7 @@ export const PillButton = React.forwardRef<HTMLButtonElement, PillButtonProps>(
 PillButton.displayName = "PillButton";
 
 export const PillLabel = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-  <div className={cn("mb-1.5 px-1 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground", className)}>
+  <div className={cn("mb-1.5 text-xs font-medium text-muted-foreground", className)}>
     {children}
   </div>
 );
