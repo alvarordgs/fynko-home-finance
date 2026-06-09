@@ -38,6 +38,7 @@ export const getDashboard = createServerFn({ method: "GET" })
     // Date range: current month
     const now = new Date();
     const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+    const firstOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().slice(0, 10);
     const next30 = new Date(now.getTime() + 30 * 86400000).toISOString().slice(0, 10);
     const today = now.toISOString().slice(0, 10);
 
