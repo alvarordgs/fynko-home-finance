@@ -122,10 +122,12 @@ function GoalSheet({
   editing,
   open: openProp,
   onOpenChange,
+  triggerLabel,
 }: {
   editing?: any | null;
   open?: boolean;
   onOpenChange?: (o: boolean) => void;
+  triggerLabel?: string;
 }) {
   const isControlled = openProp !== undefined;
   const [internalOpen, setInternalOpen] = useState(false);
