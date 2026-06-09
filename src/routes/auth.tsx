@@ -84,13 +84,13 @@ function AuthPage() {
   }
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-background px-5 py-10">
+    <div className="flex min-h-dvh items-center justify-center bg-background px-5 py-8">
       <div className="w-full max-w-[400px]">
         {/* Brand */}
-        <div className="mb-10 flex flex-col items-center text-center">
+        <div className="mb-7 flex flex-col items-center text-center">
           <FynkoMark />
-          <h1 className="mt-5 text-[28px] font-semibold tracking-tight text-foreground">Fynko</h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">Finanças para casais</p>
+          <h1 className="mt-3.5 text-[26px] font-semibold tracking-tight text-foreground">Fynko</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Finanças para casais</p>
         </div>
 
         {mode === "welcome" && (
