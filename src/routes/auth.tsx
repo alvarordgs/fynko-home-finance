@@ -94,12 +94,12 @@ function AuthPage() {
         </div>
 
         {mode === "welcome" && (
-          <div className="space-y-8">
+          <div className="space-y-6">
             <div className="text-center">
-              <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+              <h2 className="text-[22px] font-semibold tracking-tight text-foreground">
                 Organizem suas finanças juntos
               </h2>
-              <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 Acompanhem receitas, despesas e metas em um único lugar.
               </p>
             </div>
