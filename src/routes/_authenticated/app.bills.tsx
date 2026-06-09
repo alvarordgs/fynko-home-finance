@@ -48,24 +48,44 @@ function BillsPage() {
           {isLoading ? (
             <div className="p-5 text-sm text-muted-foreground">Carregando…</div>
           ) : bills.length === 0 ? (
-            <div className="p-8 text-center text-sm text-muted-foreground">Cadastre suas contas recorrentes</div>
+            <div className="flex flex-col items-center px-6 py-10 text-center">
+              <div className="text-3xl">🧾</div>
+              <div className="mt-3 text-sm font-medium">Nenhuma conta cadastrada</div>
+              <div className="mt-1 max-w-xs text-xs text-muted-foreground">
+                Cadastre suas contas recorrentes para acompanhar vencimentos e nunca esquecer um pagamento.
+              </div>
+            </div>
           ) : (
             bills.map((b: any) => {
               const days = Math.round((new Date(b.next_due_on + "T00:00:00").getTime() - Date.now()) / 86400000);
+              const status = days < 0 ? "overdue" : days <= 3 ? "due-soon" : "pending";
+              const badge = {
+                "overdue":  { label: "Atrasada", cls: "bg-destructive/10 text-destructive border-destructive/20" },
+                "due-soon": { label: days === 0 ? "Hoje" : `Em ${days}d`, cls: "bg-warning/10 text-warning border-warning/20" },
+                "pending":  { label: "Pendente", cls: "bg-card text-muted-foreground border-border-strong" },
+              }[status];
               return (
                 <div key={b.id} className="flex items-center gap-3 px-4 py-3">
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-sm font-medium">{b.description}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {fmtDate(b.next_due_on)} ·{" "}
-                      <span className={cn(days < 0 && "text-destructive font-medium", days >= 0 && days <= 3 && "text-warning font-medium")}>
-                        {days < 0 ? `${Math.abs(days)}d atrasada` : days === 0 ? "hoje" : `em ${days}d`}
-                      </span>{" "}· {b.category?.name ?? "—"}
+                    <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className={cn("inline-flex h-5 items-center rounded-full border px-2 text-[10px] font-medium", badge.cls)}>
+                        {badge.label}
+                      </span>
+                      <span>{fmtDate(b.next_due_on)}</span>
+                      {b.category?.name && <span>· {b.category.name}</span>}
                     </div>
                   </div>
                   <div className="text-sm font-semibold tabular-nums">{brl(b.amount)}</div>
-                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => payMut.mutate(b.id)} aria-label="Pagar">
-                    <CheckCircle2 className="h-4 w-4 text-success" />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 gap-1.5 rounded-lg border-success/30 px-2.5 text-success hover:bg-success/10 hover:text-success"
+                    onClick={() => payMut.mutate(b.id)}
+                    disabled={payMut.isPending}
+                  >
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    <span className="text-xs font-medium">Pagar</span>
                   </Button>
                   <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setEditing(b)} aria-label="Editar">
                     <Pencil className="h-4 w-4 text-muted-foreground" />
