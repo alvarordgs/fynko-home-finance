@@ -43,9 +43,18 @@ function GoalsPage() {
       {isLoading ? (
         <div className="text-sm text-muted-foreground">Carregando…</div>
       ) : goals.length === 0 ? (
-        <Card><CardContent className="p-8 text-center text-sm text-muted-foreground">
-          Crie sua primeira meta — Reserva, viagem, entrada de imóvel…
-        </CardContent></Card>
+        <Card>
+          <CardContent className="flex flex-col items-center px-6 py-12 text-center">
+            <div className="text-4xl">🎯</div>
+            <div className="mt-4 text-base font-semibold">Nenhuma meta criada</div>
+            <div className="mt-1.5 max-w-xs text-sm text-muted-foreground">
+              Comece definindo um objetivo financeiro para acompanhar seu progresso.
+            </div>
+            <div className="mt-5">
+              <GoalSheet triggerLabel="Criar meta" />
+            </div>
+          </CardContent>
+        </Card>
       ) : (
         <div className="space-y-3">
           {goals.map((g: any) => {
@@ -113,10 +122,12 @@ function GoalSheet({
   editing,
   open: openProp,
   onOpenChange,
+  triggerLabel,
 }: {
   editing?: any | null;
   open?: boolean;
   onOpenChange?: (o: boolean) => void;
+  triggerLabel?: string;
 }) {
   const isControlled = openProp !== undefined;
   const [internalOpen, setInternalOpen] = useState(false);
@@ -167,7 +178,9 @@ function GoalSheet({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       {!isControlled && (
-        <SheetTrigger asChild><Button size="sm"><Plus className="mr-1 h-4 w-4" />Nova</Button></SheetTrigger>
+        <SheetTrigger asChild>
+          <Button size="sm"><Plus className="mr-1 h-4 w-4" />{triggerLabel ?? "Nova"}</Button>
+        </SheetTrigger>
       )}
       <SheetContent side="bottom" className="rounded-t-2xl">
         <SheetHeader className="text-left"><SheetTitle>{editing ? "Editar meta" : "Nova meta"}</SheetTitle></SheetHeader>

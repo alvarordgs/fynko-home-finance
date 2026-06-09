@@ -38,6 +38,7 @@ export const getDashboard = createServerFn({ method: "GET" })
     // Date range: current month
     const now = new Date();
     const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+    const firstOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().slice(0, 10);
     const next30 = new Date(now.getTime() + 30 * 86400000).toISOString().slice(0, 10);
     const today = now.toISOString().slice(0, 10);
 
@@ -114,6 +115,21 @@ export const getDashboard = createServerFn({ method: "GET" })
     const monthSavings = monthIncome - monthExpense;
     const savingsRate = monthIncome > 0 ? (monthSavings / monthIncome) * 100 : 0;
 
+    // Previous month (for comparison deltas)
+    const prevMonthTx = (allTx ?? []).filter((t) => t.occurred_on >= firstOfPrevMonth && t.occurred_on < firstOfMonth);
+    const prevIncome = prevMonthTx.filter((t) => t.kind === "income").reduce((a, t) => a + Number(t.amount), 0);
+    const prevExpense = prevMonthTx.filter((t) => t.kind === "expense").reduce((a, t) => a + Number(t.amount), 0);
+    const prevSavings = prevIncome - prevExpense;
+    const pctDelta = (curr: number, prev: number): number | null => {
+      if (prev === 0) return curr === 0 ? 0 : null;
+      return ((curr - prev) / Math.abs(prev)) * 100;
+    };
+    const monthDeltas = {
+      income: pctDelta(monthIncome, prevIncome),
+      expense: pctDelta(monthExpense, prevExpense),
+      savings: pctDelta(monthSavings, prevSavings),
+    };
+
     // Balances between members
     // For each expense, owed by each member = amount * share% / 100; paid by paid_by
     // balance[user] = sum(paid) - sum(owed) + sum(received settlements) - sum(sent settlements)
@@ -173,10 +189,22 @@ export const getDashboard = createServerFn({ method: "GET" })
       return { id: b.id, description: b.description, amount: Number(b.amount), next_due_on: b.next_due_on, days };
     });
 
-    // Health
+    // Health + contextual message
     let health: "healthy" | "attention" | "critical" = "healthy";
     if (freeMoney < 0) health = "critical";
     else if (freeMoney < pendingTotal * 0.3) health = "attention";
+
+    const commitRatio = currentBalance > 0 ? Math.min(100, (pendingTotal / currentBalance) * 100) : pendingTotal > 0 ? 100 : 0;
+    let healthMessage = "Suas contas estão sob controle.";
+    if (health === "critical") {
+      healthMessage = "Seus compromissos superam o saldo disponível.";
+    } else if (health === "attention") {
+      healthMessage = `Suas contas comprometem ${commitRatio.toFixed(0)}% do seu saldo atual.`;
+    } else if (pendingTotal > 0) {
+      healthMessage = `Suas contas comprometem apenas ${commitRatio.toFixed(0)}% do seu saldo atual.`;
+    } else {
+      healthMessage = "Nenhuma conta pendente nos próximos dias.";
+    }
 
     return {
       members,
@@ -185,10 +213,14 @@ export const getDashboard = createServerFn({ method: "GET" })
       pendingTotal,
       receivableTotal,
       projected30,
+      commitRatio,
+      health,
+      healthMessage,
       month: { income: monthIncome, expense: monthExpense, savings: monthSavings, savingsRate },
+      monthDeltas,
       balanceBetween: owesText,
       categoryBreakdown,
       upcoming,
-      health,
+      generatedAt: new Date().toISOString(),
     };
   });
