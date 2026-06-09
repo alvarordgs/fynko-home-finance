@@ -178,7 +178,9 @@ function GoalSheet({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       {!isControlled && (
-        <SheetTrigger asChild><Button size="sm"><Plus className="mr-1 h-4 w-4" />Nova</Button></SheetTrigger>
+        <SheetTrigger asChild>
+          <Button size="sm"><Plus className="mr-1 h-4 w-4" />{triggerLabel ?? "Nova"}</Button>
+        </SheetTrigger>
       )}
       <SheetContent side="bottom" className="rounded-t-2xl">
         <SheetHeader className="text-left"><SheetTitle>{editing ? "Editar meta" : "Nova meta"}</SheetTitle></SheetHeader>
