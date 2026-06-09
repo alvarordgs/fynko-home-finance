@@ -189,7 +189,7 @@ function AuthPage() {
           </FormShell>
         )}
 
-        <p className="mt-10 text-center text-xs text-muted-foreground/70">
+        <p className="mt-8 text-center text-xs text-muted-foreground/70">
           Ao continuar, você concorda com os Termos e a Política de Privacidade.
         </p>
       </div>
