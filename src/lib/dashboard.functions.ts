@@ -115,6 +115,21 @@ export const getDashboard = createServerFn({ method: "GET" })
     const monthSavings = monthIncome - monthExpense;
     const savingsRate = monthIncome > 0 ? (monthSavings / monthIncome) * 100 : 0;
 
+    // Previous month (for comparison deltas)
+    const prevMonthTx = (allTx ?? []).filter((t) => t.occurred_on >= firstOfPrevMonth && t.occurred_on < firstOfMonth);
+    const prevIncome = prevMonthTx.filter((t) => t.kind === "income").reduce((a, t) => a + Number(t.amount), 0);
+    const prevExpense = prevMonthTx.filter((t) => t.kind === "expense").reduce((a, t) => a + Number(t.amount), 0);
+    const prevSavings = prevIncome - prevExpense;
+    const pctDelta = (curr: number, prev: number): number | null => {
+      if (prev === 0) return curr === 0 ? 0 : null;
+      return ((curr - prev) / Math.abs(prev)) * 100;
+    };
+    const monthDeltas = {
+      income: pctDelta(monthIncome, prevIncome),
+      expense: pctDelta(monthExpense, prevExpense),
+      savings: pctDelta(monthSavings, prevSavings),
+    };
+
     // Balances between members
     // For each expense, owed by each member = amount * share% / 100; paid by paid_by
     // balance[user] = sum(paid) - sum(owed) + sum(received settlements) - sum(sent settlements)
