@@ -62,8 +62,11 @@ function AuthPage() {
     });
     setLoading(false);
     if (error) return toast.error(error.message);
-    toast.success("Conta criada! Verifique seu email se solicitado.");
-    navigate({ to: "/app" });
+    toast.success("Conta criada com sucesso. Verifique seu email para confirmar antes de fazer login.");
+    setName("");
+    setEmail("");
+    setPassword("");
+    setMode("login");
   }
 
   async function handleGoogle() {
