@@ -65,32 +65,34 @@ function BillsPage() {
                 "pending":  { label: "Pendente", cls: "bg-card text-muted-foreground border-border-strong" },
               }[status];
               return (
-                <div key={b.id} className="flex items-center gap-3 px-4 py-3">
+                <div key={b.id} className="flex items-center gap-2 px-4 py-3">
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-sm font-medium">{b.description}</div>
-                    <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                       <span className={cn("inline-flex h-5 items-center rounded-full border px-2 text-[10px] font-medium", badge.cls)}>
                         {badge.label}
                       </span>
                       <span>{fmtDate(b.next_due_on)}</span>
-                      {b.category?.name && <span>· {b.category.name}</span>}
+                      {b.category?.name && <span className="truncate">· {b.category.name}</span>}
                     </div>
+                    <div className="mt-1 text-sm font-semibold tabular-nums sm:hidden">{brl(b.amount)}</div>
                   </div>
-                  <div className="text-sm font-semibold tabular-nums">{brl(b.amount)}</div>
+                  <div className="hidden text-sm font-semibold tabular-nums sm:block">{brl(b.amount)}</div>
                   <Button
-                    size="sm"
+                    size="icon"
                     variant="outline"
-                    className="h-8 gap-1.5 rounded-lg border-success/30 px-2.5 text-success hover:bg-success/10 hover:text-success"
+                    className="h-8 w-8 shrink-0 rounded-full border-success/30 text-success hover:bg-success/10 hover:text-success"
                     onClick={() => payMut.mutate(b.id)}
                     disabled={payMut.isPending}
+                    aria-label="Marcar como paga"
+                    title="Marcar como paga"
                   >
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                    <span className="text-xs font-medium">Pagar</span>
+                    <CheckCircle2 className="h-4 w-4" />
                   </Button>
-                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setEditing(b)} aria-label="Editar">
+                  <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0" onClick={() => setEditing(b)} aria-label="Editar">
                     <Pencil className="h-4 w-4 text-muted-foreground" />
                   </Button>
-                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { if (confirm("Remover?")) delMut.mutate(b.id); }} aria-label="Remover">
+                  <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0" onClick={() => { if (confirm("Remover?")) delMut.mutate(b.id); }} aria-label="Remover">
                     <Trash2 className="h-4 w-4 text-muted-foreground" />
                   </Button>
                 </div>
